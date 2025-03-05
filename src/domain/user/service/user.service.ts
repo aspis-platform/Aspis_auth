@@ -26,7 +26,7 @@ export class UserService {
     }
     
     
-    async loginUser(date:loginUserDto){
+    async loginUser(data:loginUserDto){
         const{user_name,user_password} = data;
 
         const user = await this.userRepository.findOneBy({
@@ -41,8 +41,8 @@ export class UserService {
             throw new HttpException('NOT_FOUND',HttpStatus.NOT_FOUND);
 
         const payload = {
-            username,
-            name:user.name
+            user_name,
+            name:user.user_name
         }
 
 
@@ -53,6 +53,10 @@ export class UserService {
         return{
             accessToken,
         }
+    }
+
+    async getUser(){
+        return await this.userRepository.find()
     }
     
     async encryptPassword(password:string){

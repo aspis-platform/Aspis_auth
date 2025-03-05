@@ -12,4 +12,5 @@ export default new DataSource({
     entities:[__dirname+'src/**/*.entity.{.ts,.js}'],
     migrations:['src/database/migrations/*.ts'],
     migrationsTableName:'migrations',
+    synchronize: false,  // DB에 영향을 주지 않기 위해 false
 })
