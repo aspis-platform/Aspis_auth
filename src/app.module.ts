@@ -1,24 +1,31 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import * as path from 'path';
 import { UserModule } from './domain/user/user.module';
 import { AuthModule } from './domain/auth/auth.module';
+import { dataSource } from './global/database/data.source'; // dataSource import
+import { RedisModule } from './global/redis/redis.datasource';  // 경로 수정
+import { InviteModule } from './domain/invite/invite.module';
+import { ConfigModule } from '@nestjs/config';
+import { User } from './domain/user/entity/user.entity';
+import { EmailModule } from './global/email/email.module';
+
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+        isGlobal: true,  // 환경변수를 전역에서 사용할 수 있도록 설정
+      }),
+
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'donggun',
-      password: process.env.DATABASE_PASSWORD, // 환경 변수로 비밀번호 처리
-      database: 'postgres',
-      entities: [path.join(__dirname, '/entity/*.{ts,js}')], // 경로 수정
-      synchronize: false,  // 프로덕션 환경에서는 false
-      logging: true,  // SQL 쿼리 로그 활성화
+      ...dataSource.options,  // dataSource의 옵션을 펼쳐서 전달
     }),
-  UserModule,
-  AuthModule
-    ],
+    
+    TypeOrmModule.forFeature([User]),  // User 엔티티를 이 모듈에서 사용하도록 등록
+    UserModule,  // User 관련 모듈
+    AuthModule,  // Auth 관련 모듈
+    RedisModule,
+    InviteModule,
+    EmailModule
+  ],
 })
 export class AppModule {}
