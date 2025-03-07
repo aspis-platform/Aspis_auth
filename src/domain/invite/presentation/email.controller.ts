@@ -11,11 +11,6 @@ export class RedisController {
     return { message: 'Email saved successfully',key: key };
   }
 
-  @Get('get/:key')
-  async getAndDeleteEmail(@Param('key') key: string){
-    const entity = await this.redisService.getAndDeleteEmail(key);
-    return entity ? entity : HttpStatus.NOT_FOUND
-  }
 
   @Delete('delete/:key')
   async deleteEmail(@Param('key') key: string) {

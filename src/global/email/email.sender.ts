@@ -1,7 +1,7 @@
-import nodemailer from 'nodemailer';
+import * as nodemailer from 'nodemailer'; 
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-// 이메일 옵션 타입 정의
 interface EmailOptions {
   to: string;
   subject: string;
@@ -9,37 +9,30 @@ interface EmailOptions {
   html?: string;
 }
 
+@Injectable() 
 export class EmailService {
-  private configService: ConfigService;
+  constructor(private readonly configService: ConfigService) {}
 
-  constructor(configService: ConfigService) {
-    this.configService = configService;
-  }
-
-  // 이메일 보내는 함수
   async sendEmail({ to, subject, text, html }: EmailOptions): Promise<void> {
     try {
-      // 이메일 전송 설정
       const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 587,
-        secure: false, // true for 465, false for other ports
+        secure: false,
         auth: {
           user: this.configService.get<string>('EMAIL_USER'),
           pass: this.configService.get<string>('EMAIL_PASS'),
         },
       });
 
-      // 이메일 내용
       const mailOptions = {
-        from: this.configService.get<string>('EMAIL_USER'), // 발신 이메일 주소
-        to, // 수신 이메일 주소
-        subject, // 이메일 제목
-        text, // 이메일 본문
-        html, // 이메일 본문 (HTML 형식)
+        from: this.configService.get<string>('EMAIL_USER'),
+        to,
+        subject,
+        text,
+        html,
       };
 
-      // 이메일 전송
       const info = await transporter.sendMail(mailOptions);
       console.log('Email sent: ' + info.response);
     } catch (error) {

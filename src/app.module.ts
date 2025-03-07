@@ -13,14 +13,14 @@ import { EmailModule } from './global/email/email.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-        isGlobal: true,  // 환경변수를 전역에서 사용할 수 있도록 설정
-      }),
+      isGlobal: true,
+    }),
 
     TypeOrmModule.forRoot({
-      ...dataSource.options,  // dataSource의 옵션을 펼쳐서 전달
+      ...dataSource.options, 
     }),
-    
-    TypeOrmModule.forFeature([User]),  // User 엔티티를 이 모듈에서 사용하도록 등록
+
+    TypeOrmModule.forFeature([User]),
     UserModule,  // User 관련 모듈
     AuthModule,  // Auth 관련 모듈
     RedisModule,
@@ -28,4 +28,4 @@ import { EmailModule } from './global/email/email.module';
     EmailModule
   ],
 })
-export class AppModule {}
+export class AppModule { }

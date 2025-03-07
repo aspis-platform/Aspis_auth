@@ -1,3 +1,4 @@
+import { AllMethods } from './../../../../node_modules/@types/supertest/types.d';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
@@ -8,13 +9,14 @@ import * as jwt from 'jsonwebtoken';
 import { hash, compare } from 'bcrypt';
 import Redis from 'ioredis';
 import { EmailService } from 'src/global/email/email.sender';
+import { deleteUserDto } from '../presentation/dto/delete.user.dto';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>,
-        @Inject('REDIS_CLIENT') 
+        @Inject('REDIS_CLIENT') //의존성 주입 방법으로 받아오기ㅈ
         private readonly redisClient: Redis ,
         private emailService: EmailService
     ) {}
@@ -23,17 +25,10 @@ export class UserService {
         const { user_name, key, user_password } = data;
         const encryptPassword = await this.encryptPassword(user_password);
         const user_email = await this.redisClient.get(key);
+        
         console.log(user_email)
-        const emailOptions = {
-            to: user_email,
-            subject: '로그인 인증 키',
-            text: `안녕하세요! 로그인 인증 키는 ${key}입니다. 이 키를 사용하여 로그인을 진행하세요.`,
-            html: `<h1>안녕하세요!</h1><p>로그인 인증 키는 <strong>${key}</strong>입니다. 이 키를 사용하여 로그인을 진행하세요.</p>`,
-          };
-          await this.emailService.sendEmail(emailOptions);
-        if(!user_email) {
-             return HttpStatus.NOT_FOUND;
-        }
+        console.log(`키값: ${key}`);
+        console.log(`Redis에서 가져온 이메일: ${user_email}`);
            
         this.redisClient.del(key)
 
@@ -66,6 +61,28 @@ export class UserService {
     async getUser() {
         return await this.userRepository.find();
     }
+
+
+    async DeleteUser(data: deleteUserDto): Promise<void> {
+        const { user_name } = data;
+    
+        try {
+          // 사용자 찾기
+          const user = await this.userRepository.findOne({ where: { user_name } });
+          
+          if (!user) {
+            throw new Error('User not found');
+          }
+    
+          // 사용자 삭제
+          await this.userRepository.delete({ user_name });
+    
+          console.log(`User ${user_name} has been deleted successfully.`);
+        } catch (error) {
+          console.error('Error deleting user:', error);
+          throw error;
+        }
+      }
 
     async encryptPassword(password: string) {
         const DEFAULT_SALT = 11;
