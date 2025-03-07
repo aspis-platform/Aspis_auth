@@ -15,8 +15,8 @@ export class RedisService {
     const emailOptions = {
       to: email,
       subject: '로그인 인증 키',
-      text: `안녕하세요! 로그인 인증 키는 ${key}입니다. 이 키를 사용하여 로그인을 진행하세요.`,
-      html: `<h1>안녕하세요!</h1><p>로그인 인증 키는 <strong>${key}</strong>입니다. 이 키를 사용하여 로그인을 진행하세요.</p>`,
+      text: `안녕하세요! 로그인 인증 키는 https://aspis.ncloud.sbs/join?key=${key}입니다. 이 키를 사용하여 로그인을 진행하세요.`,
+      html: `<h1>안녕하세요!</h1><p> https://aspis.ncloud.sbs/join?key=${key}입니다. 이 키를 사용하여 로그인을 진행하세요.</p>`,
     };
     await this.emailService.sendEmail(emailOptions);
 
