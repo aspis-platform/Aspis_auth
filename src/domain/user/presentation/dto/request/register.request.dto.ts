@@ -1,18 +1,14 @@
 import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
-export class registerUserDto{
+export class registerRequestDto{
    
     @IsNotEmpty()
     @IsString()
     user_name:string;
-
-    @IsNotEmpty()
-    user_email:string;
-
     
     @IsNotEmpty()
     @IsString()
-    key:string; //회원가입 할때 key를 왜 입력??
+    key:string;
    
     @IsNotEmpty()
     @IsString()

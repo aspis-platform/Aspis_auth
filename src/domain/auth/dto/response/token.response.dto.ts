@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsString } from "class-validator";
 
-export class deleteUserDto{
+export class tokenResponseDto{
     @IsNotEmpty()
-   user_name:string
+    @IsString()
+    access_token:string
 }

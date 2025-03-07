@@ -1,11 +1,11 @@
-//아이디 ,비번
 import { IsNotEmpty, IsString } from "class-validator";
 
-export class loginUserDto{
+export class SetEmailResponseDto {
     @IsNotEmpty()
-    user_name:string;
+    @IsString()
+    message: string;
 
     @IsNotEmpty()
     @IsString()
-    user_password:string
+    key: string;
 }
