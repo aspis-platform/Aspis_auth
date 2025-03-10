@@ -1,4 +1,3 @@
-import { AllMethods } from './../../../../node_modules/@types/supertest/types.d';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
@@ -17,7 +16,7 @@ export class UserService {
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>,
-        @Inject('REDIS_CLIENT') //의존성 주입 방법으로 받아오기ㅈ
+        @Inject('REDIS_CLIENT') 
         private readonly redisClient: Redis,
         private emailService: EmailService
     ) { }
@@ -26,6 +25,10 @@ export class UserService {
         const { user_name, key, user_password } = data;
         const encryptPassword = await this.encryptPassword(user_password);
         const user_email = await this.redisClient.get(key);
+
+        const user = await this.userRepository.findOneBy({ user_email });
+        
+        if (user) throw new HttpException('ALREADY_USING_EMAIL', HttpStatus.CONFLICT);
 
         console.log(user_email)
         console.log(`키값: ${key}`);
@@ -43,8 +46,8 @@ export class UserService {
     }
 
     async loginUser(data: loginRequestDto): Promise<loginResponseDto> {
-        const { user_name, user_password } = data;
-        const user = await this.userRepository.findOneBy({ user_name });
+        const { user_email, user_password } = data;
+        const user = await this.userRepository.findOneBy({ user_email });
         
         if (!user) throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
 
