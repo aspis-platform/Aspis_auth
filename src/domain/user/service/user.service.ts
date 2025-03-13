@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
 import { Repository } from 'typeorm';
 import * as jwt from 'jsonwebtoken';
-import { hash, compare } from 'bcrypt';
+import { hash, compare } from 'bcryptjs';
 import Redis from 'ioredis';
 import { EmailService } from 'src/global/email/email.sender';
 import { deleteRequestDto } from '../presentation/dto/request/delete.request.dto';

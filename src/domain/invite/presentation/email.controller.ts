@@ -1,7 +1,6 @@
-import { Controller, Post, Get, Delete, Body, Param, HttpStatus, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body, Param, ValidationPipe } from '@nestjs/common';
 import { RedisService } from '../service/email.service';
 import { SetEmailResponseDto } from '../dto/response/setEmail.response.dto';
-import { ValidationTypes } from 'class-validator';
 import { setEmailRequestDto } from '../dto/request/setEmail.request.dto';
 import { DeleteEmailResponseDto } from '../dto/response/deleteEmail.response.dto';
 
