@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 @Injectable()
-export class RedisService {
+export class InviteService {
   constructor(@Inject('REDIS_CLIENT') private readonly redisClient: Redis,
   private emailService: EmailService
 ) {}
