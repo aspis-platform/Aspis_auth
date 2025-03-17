@@ -4,8 +4,8 @@ import { SetEmailResponseDto } from '../dto/response/setEmail.response.dto';
 import { setEmailRequestDto } from '../dto/request/setEmail.request.dto';
 import { DeleteEmailResponseDto } from '../dto/response/deleteEmail.response.dto';
 
-@Controller('redis')
-export class RedisController {
+@Controller('invite')
+export class inviteController {
   constructor(private readonly redisService: RedisService) {}
 
   @Post('/set')

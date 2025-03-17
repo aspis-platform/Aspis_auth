@@ -5,7 +5,7 @@ import { tokenResponseDto } from '../dto/response/token.response.dto';
 
 @Injectable()
 export class AuthService {
-    private readonly secretKey = 'FUCK'; // 환경 변수로 관리하는 게 좋음
+    private readonly secretKey = process.env.JWT_SECRETKEY 
 
     constructor(@Inject('REDIS_CLIENT') private readonly redisClient: Redis) {}
 
