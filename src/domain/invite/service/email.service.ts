@@ -2,6 +2,8 @@ import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import { randomUUID } from 'crypto';
 import { EmailService } from 'src/global/email/email.sender';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class RedisService {
@@ -12,11 +14,14 @@ export class RedisService {
   async setEmail(email: string, ttl: number = 3600): Promise<string> { //저장된 이메일을 식별할 수 있는 고유한 키를 반환하는 역할을 한다.
     const key = randomUUID();
     
+    const emailTemplatePath = path.join(__dirname, '../../emailTemplate.html'); // 경로 확인 필요
+    let emailHtml = fs.readFileSync(emailTemplatePath, 'utf-8');
+
     const emailOptions = {
       to: email,
       subject: '로그인 인증 키',
       text: `안녕하세요! 로그인 인증 키는 https://aspis.ncloud.sbs/join?key=${key}입니다. 이 키를 사용하여 로그인을 진행하세요.`,
-      html: `<h1>안녕하세요!</h1><p> https://aspis.ncloud.sbs/join?key=${key}입니다. 이 키를 사용하여 로그인을 진행하세요.</p>`,
+      html: emailHtml,
     };
     await this.emailService.sendEmail(emailOptions);
 
