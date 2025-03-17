@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { RedisService } from './service/email.service';
+import { InviteService } from './service/email.service';
 import { inviteController } from './presentation/email.controller';
 import { RedisModule } from 'src/global/redis/redis.datasource';
 import { EmailModule } from 'src/global/email/email.module';
@@ -9,8 +9,8 @@ import { EmailModule } from 'src/global/email/email.module';
     EmailModule,
     InviteModule
   ],
-  providers: [RedisService],
+  providers: [InviteService],
   controllers: [inviteController],
-  exports: [RedisService],
+  exports: [InviteService],
 })
 export class InviteModule { }
