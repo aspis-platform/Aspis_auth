@@ -9,7 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { User } from './domain/user/entity/user.entity';
 import { EmailModule } from './global/email/email.module';
 import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from './global/\bsecurity/roles.guard';
+import { RolesGuard } from './global/security/roles.guard';
 import { JwtModule } from '@nestjs/jwt';
 
 

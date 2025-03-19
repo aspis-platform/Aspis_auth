@@ -3,7 +3,7 @@ import { InviteService } from '../service/invite.service';
 import { SetEmailResponseDto } from '../dto/response/setEmail.response.dto';
 import { setEmailRequestDto } from '../dto/request/setEmail.request.dto';
 import { DeleteEmailResponseDto } from '../dto/response/deleteEmail.response.dto';
-import { Roles } from 'src/global/\bsecurity/roles.decorator';
+import { Roles } from 'src/global/security/roles.decorator';
 import { UserAuthority } from 'src/domain/user/entity/authority.enum';
 
 @Controller('invite')

@@ -4,7 +4,7 @@ import { deleteRequestDto } from "./dto/request/delete.request.dto";
 import { loginRequestDto } from "./dto/request/login.request.dto";
 import { registerRequestDto } from "./dto/request/register.request.dto";
 import { loginResponseDto } from "./dto/response/login.response.dto";
-import { Roles } from "src/global/\bsecurity/roles.decorator";
+import { Roles } from "src/global/security/roles.decorator";
 import { UserAuthority } from "../entity/authority.enum";
 
 @Controller('user')

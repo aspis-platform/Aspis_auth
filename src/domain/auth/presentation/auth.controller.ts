@@ -1,4 +1,4 @@
-import { Roles } from 'src/global/\bsecurity/roles.decorator';
+import { Roles } from 'src/global/security/roles.decorator';
 import { tokenRequestDto } from '../dto/request/token.request.dto';
 import { tokenResponseDto } from '../dto/response/token.response.dto';
 import { AuthService } from '../service/auth.service';
