@@ -8,6 +8,9 @@ import { InviteModule } from './domain/invite/invite.module';
 import { ConfigModule } from '@nestjs/config';
 import { User } from './domain/user/entity/user.entity';
 import { EmailModule } from './global/email/email.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './global/\bsecurity/roles.guard';
+import { JwtModule } from '@nestjs/jwt';
 
 
 @Module({
@@ -15,11 +18,13 @@ import { EmailModule } from './global/email/email.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-
     TypeOrmModule.forRoot({
       ...dataSource.options, 
     }),
-
+    JwtModule.register({
+      secret: process.env.JWT_SECRETKEY,
+      signOptions: { expiresIn: '1h' },
+    }),
     TypeOrmModule.forFeature([User]),
     UserModule,  // User 관련 모듈
     AuthModule,  // Auth 관련 모듈
@@ -27,5 +32,12 @@ import { EmailModule } from './global/email/email.module';
     InviteModule,
     EmailModule
   ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
-export class AppModule { }
+export class AppModule {}
+

@@ -15,7 +15,7 @@ export class User{
     @Column({ //유저와 관리자 구분
         type: "enum",
         enum: UserAuthority,
-        default: UserAuthority.USER //기본값을 user로 설정
+        default: UserAuthority.STAFF //기본값을 user로 설정
     })
     user_authority: UserAuthority;
 

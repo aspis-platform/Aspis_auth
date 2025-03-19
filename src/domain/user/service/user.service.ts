@@ -3,13 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
 import { Repository } from 'typeorm';
 import * as jwt from 'jsonwebtoken';
-import { hash, compare } from 'bcryptjs';
+import { hash, compare } from 'bcryptjs'; // bcryptjs로 변경
 import Redis from 'ioredis';
 import { EmailService } from 'src/global/email/email.sender';
 import { deleteRequestDto } from '../presentation/dto/request/delete.request.dto';
 import { loginRequestDto } from '../presentation/dto/request/login.request.dto';
 import { registerRequestDto } from '../presentation/dto/request/register.request.dto';
 import { loginResponseDto } from '../presentation/dto/response/login.response.dto';
+import { ConfigService } from '@nestjs/config';
+import { UserAuthority } from '../entity/authority.enum';
 
 @Injectable()
 export class UserService {
@@ -18,7 +20,8 @@ export class UserService {
         private userRepository: Repository<User>,
         @Inject('REDIS_CLIENT') 
         private readonly redisClient: Redis,
-        private emailService: EmailService
+        private emailService: EmailService,
+        private readonly configService: ConfigService,
     ) { }
 
     async createUser(data: registerRequestDto) {
@@ -54,9 +57,10 @@ export class UserService {
         const match = await compare(user_password, user.user_password);
         if (!match) throw new HttpException('INVALID_PASSWORD', HttpStatus.UNAUTHORIZED);
 
-        const payload = { authority: user.user_authority, id: user.id };
-        const secretKey = 'FUCK';
-
+        const role = user.user_authority === 'STAFF' ? 'STAFF' : 'MANAGER';
+        const payload = { authority: role, id: user.id };
+        const secretKey = this.configService.get<string>('JWT_SECRETKEY');
+    
         const accessToken = jwt.sign(payload, secretKey, { expiresIn: '1h' });
         const refreshToken = jwt.sign(payload, secretKey, { expiresIn: '1y' });
 
@@ -65,13 +69,12 @@ export class UserService {
         return {
             access_token: accessToken,
             refresh_token: refreshToken
-        }
+        };
     }
 
     async getUser() {
         return await this.userRepository.find();
     }
-
 
     async DeleteUser(data: deleteRequestDto): Promise<void> {
         const { user_name } = data;
@@ -96,6 +99,34 @@ export class UserService {
 
     async encryptPassword(password: string) {
         const DEFAULT_SALT = 11;
-        return hash(password, DEFAULT_SALT);
+        return hash(password, DEFAULT_SALT); // bcryptjs 사용
     }
+
+    async onModuleInit() {
+        const userExists = await this.userRepository.findOne({
+          where: { user_email: 'admin@example.com' },
+        });
+    
+        if (!userExists) {
+            const adminPassword = process.env.ADMIN_PASSWORD;
+            if (!adminPassword) {
+              throw new Error('관리자 비밀번호가 환경 변수에 설정되지 않았습니다.');
+            }
+          
+            const hashedPassword = await hash(adminPassword, 10);
+          
+            const adminUser = this.userRepository.create({
+              user_name: process.env.ADMIN_NAME ,
+              user_email: process.env.ADMIN_EMAIL,
+              user_authority: UserAuthority.MANAGER,
+              user_password: hashedPassword,
+            });
+
+
+          await this.userRepository.save(adminUser);
+          console.log('Admin user created!');
+        } else {
+          console.log('Admin user already exists!');
+        }
+      }
 }

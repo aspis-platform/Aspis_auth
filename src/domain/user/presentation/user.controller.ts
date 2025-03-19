@@ -4,6 +4,8 @@ import { deleteRequestDto } from "./dto/request/delete.request.dto";
 import { loginRequestDto } from "./dto/request/login.request.dto";
 import { registerRequestDto } from "./dto/request/register.request.dto";
 import { loginResponseDto } from "./dto/response/login.response.dto";
+import { Roles } from "src/global/\bsecurity/roles.decorator";
+import { UserAuthority } from "../entity/authority.enum";
 
 @Controller('user')
 export class UserController {
@@ -27,7 +29,7 @@ export class UserController {
         return result;  // 로그인 시 토큰 반환
     }
 
-
+    @Roles(UserAuthority.MANAGER)
     @Delete('/delete')
     async delete(
         @Body(new ValidationPipe()) data:deleteRequestDto
@@ -36,7 +38,7 @@ export class UserController {
         return result
     }
 
-
+    @Roles(UserAuthority.MANAGER)
     @Get()
     async getUsers() {
         return this.UserService.getUser();

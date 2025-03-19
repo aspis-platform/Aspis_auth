@@ -7,6 +7,9 @@ import * as path from 'path';
 
 @Injectable()
 export class InviteService {
+  find() {
+    throw new Error('Method not implemented.');
+  }
   constructor(@Inject('REDIS_CLIENT') private readonly redisClient: Redis,
   private emailService: EmailService
 ) {}
@@ -32,6 +35,21 @@ async setEmail(email: string, ttl: number = 3600): Promise<string> { //저장된
     return key
   }
 
+
+  async getAllUsers(): Promise<any[]> {
+
+const keys = await this.redisClient.keys('*'); 
+    
+if (keys.length === 0) return []; // 키가 없으면 빈 배열 반환
+
+
+const values = await this.redisClient.mget(keys); 
+
+
+const filteredValues = values.filter(value => value !== null);
+
+return filteredValues; // null 값을 제외한 value 값만 반환
+}
 
   
   async deleteEmail(key: string): Promise<void> { //키를 가지고 그 키에 맞는 이메일을 삭제한다

@@ -15,7 +15,7 @@ export class AuthService {
         if (!redisReturnValue) {
             throw new NotFoundException('Refresh token not found');
         }
-
+        
         // Refresh Token 검증 및 페이로드 추출
         let payload;
         try {
@@ -26,9 +26,13 @@ export class AuthService {
             }
             throw new UnauthorizedException('Invalid refresh token');
         }
-
-        const accessToken = jwt.sign(payload, this.secretKey, { expiresIn: '1h' });
-
+        
+        // exp 속성 제거 (만료 시간 정보를 지웁니다)
+        const { exp, ...payloadWithoutExp } = payload;
+        
+        // 새로운 액세스 토큰 생성 (expiresIn 옵션 사용)
+        const accessToken = jwt.sign(payloadWithoutExp, this.secretKey, { expiresIn: '1h' });
+        
         return { access_token: accessToken };
     }
 }
