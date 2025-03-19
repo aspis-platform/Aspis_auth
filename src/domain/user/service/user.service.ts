@@ -26,27 +26,42 @@ export class UserService {
 
     async createUser(data: registerRequestDto) {
         const { user_name, key, user_password } = data;
-        const encryptPassword = await this.encryptPassword(user_password);
+    
+        
         const user_email = await this.redisClient.get(key);
-
+    
+        
+        if (!user_email) {
+            throw new HttpException('KEY_NOT_FOUND', HttpStatus.NOT_FOUND); 
+        }
+    
+        
+        const encryptPassword = await this.encryptPassword(user_password);
+    
+        
         const user = await this.userRepository.findOneBy({ user_email });
         
-        if (user) throw new HttpException('ALREADY_USING_EMAIL', HttpStatus.CONFLICT);
-
-        console.log(user_email)
+        if (user) {
+            throw new HttpException('ALREADY_USING_EMAIL', HttpStatus.CONFLICT); // 이메일 중복 처리
+        }
+    
+        console.log(user_email);
         console.log(`키값: ${key}`);
         console.log(`Redis에서 가져온 이메일: ${user_email}`);
-
-        this.redisClient.del(key)
-
+    
+        
+        this.redisClient.del(key);
+    
+        
         await this.userRepository.save({
             user_name,
             user_email,
             user_password: encryptPassword
         });
-
+    
         return HttpStatus.OK;
     }
+    
 
     async loginUser(data: loginRequestDto): Promise<loginResponseDto> {
         const { user_email, user_password } = data;
@@ -72,30 +87,37 @@ export class UserService {
         };
     }
 
-    async getUser() {
-        return await this.userRepository.find();
+    async getUsers() {
+        return await this.userRepository.find({
+            select: ['id', 'user_name', 'user_email', 'user_authority'],  // 비밀번호 제외하고 필드 선택
+        });
     }
+    
 
-    async DeleteUser(data: deleteRequestDto): Promise<void> {
+    async DeleteUser(data: deleteRequestDto): Promise<any> {
         const { user_name } = data;
-
+    
         try {
             // 사용자 찾기
             const user = await this.userRepository.findOne({ where: { user_name } });
-
+    
+            // 사용자가 없으면 오류 메시지 반환
             if (!user) {
-                throw new Error('User not found');
+                throw new HttpException('사용자가 없습니다', HttpStatus.NOT_FOUND);
             }
-
+    
             // 사용자 삭제
             await this.userRepository.delete({ user_name });
-
-            console.log(`User ${user_name} has been deleted successfully.`);
+    
+            // 정상적으로 삭제되면 200 OK 반환
+            return { message: `User ${user_name} has been deleted successfully.`, statusCode: HttpStatus.OK };
         } catch (error) {
+            // 예외 발생 시 로그 출력 및 예외 처리
             console.error('Error deleting user:', error);
             throw error;
         }
     }
+    
 
     async encryptPassword(password: string) {
         const DEFAULT_SALT = 11;

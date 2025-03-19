@@ -41,6 +41,6 @@ export class UserController {
     @Roles(UserAuthority.MANAGER)
     @Get()
     async getUsers() {
-        return this.UserService.getUser();
+        return this.UserService.getUsers();
     }
 }

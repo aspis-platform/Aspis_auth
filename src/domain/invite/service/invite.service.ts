@@ -1,4 +1,4 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import { randomUUID } from 'crypto';
 import { EmailService } from 'src/global/email/email.sender';
@@ -52,7 +52,20 @@ return filteredValues; // null 값을 제외한 value 값만 반환
 }
 
   
-  async deleteEmail(key: string): Promise<void> { //키를 가지고 그 키에 맞는 이메일을 삭제한다
-    await this.redisClient.del(key);
+async deleteEmail(key: string): Promise<{ message: string }> {
+  // Redis에서 키로 이메일을 가져옴
+  const user_email = await this.redisClient.get(key);
+
+  // 키에 해당하는 이메일이 존재하지 않으면
+  if (!user_email) {
+      throw new HttpException('KEY_NOT_FOUND', HttpStatus.NOT_FOUND); // '키값이 존재하지 않습니다'
   }
+
+  // 이메일 삭제
+  await this.redisClient.del(key);
+
+  // 이메일 삭제 성공 메시지 반환
+  return { message: 'Email deleted successfully' };
+}
+
 }
