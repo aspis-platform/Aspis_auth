@@ -3,7 +3,6 @@ import Redis from 'ioredis';
 import { randomUUID } from 'crypto';
 import { EmailService } from 'src/global/email/email.sender';
 import * as fs from 'fs';
-import * as path from 'path';
 
 @Injectable()
 export class InviteService {

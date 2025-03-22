@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { UserAuthority } from "./authority.enum";
+import { matches } from "class-validator";
 
 @Entity('user')
 export class User{
@@ -19,6 +20,6 @@ export class User{
     })
     user_authority: UserAuthority;
 
-    @Column()
+    @Column() // 정규식 추가 
     user_password:string;
 }

@@ -1,3 +1,4 @@
+import { refreshToken } from './../../auth/dto/entity/refresh.entity';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
@@ -15,9 +16,11 @@ import { UserAuthority } from '../entity/authority.enum';
 
 @Injectable()
 export class UserService {
-    constructor(
+    constructor( 
         @InjectRepository(User)
         private userRepository: Repository<User>,
+        @InjectRepository(refreshToken)
+        private refreshRepository: Repository<refreshToken>,
         @Inject('REDIS_CLIENT') 
         private readonly redisClient: Redis,
         private emailService: EmailService,
@@ -79,7 +82,10 @@ export class UserService {
         const accessToken = jwt.sign(payload, secretKey, { expiresIn: '1h' });
         const refreshToken = jwt.sign(payload, secretKey, { expiresIn: '1y' });
 
-        await this.redisClient.set(refreshToken, user.id, 'EX', 31536000);
+        await this.refreshRepository.save({
+            refreshToken: refreshToken,
+        });
+        
 
         return {
             access_token: accessToken,

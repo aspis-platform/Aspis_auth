@@ -1,22 +1,36 @@
-import { HttpException, HttpStatus, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import Redis from 'ioredis';
 import * as jwt from 'jsonwebtoken';
-import { tokenResponseDto } from '../dto/response/token.response.dto';
+import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { refreshToken } from '../dto/entity/refresh.entity';
+import { Repository } from 'typeorm';
+import { User } from 'src/domain/user/entity/user.entity';
 
 @Injectable()
 export class AuthService {
-    private readonly secretKey = process.env.JWT_SECRETKEY 
 
-    constructor(@Inject('REDIS_CLIENT') private readonly redisClient: Redis) {}
+    constructor(@Inject('REDIS_CLIENT') private readonly redisClient: Redis,
+    private readonly configService: ConfigService,
+    @InjectRepository(refreshToken)
+    private refreshRepository: Repository<refreshToken>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+) {}
 
-    async reissueToken(refreshToken: string): Promise<tokenResponseDto> {
-        // Redis에서 refreshToken 조회
-        const redisReturnValue = await this.redisClient.get(refreshToken);
-        if (!redisReturnValue) {
+
+    
+    private secretKey = this.configService.get<string>('JWT_SECRETKEY');
+    
+    async reissueToken(refreshToken: string): Promise<{ access_token: string }> {
+        
+        const tokenEntity = await this.refreshRepository.findOne({ where: { refreshToken } });
+    
+        if (!tokenEntity) {
             throw new NotFoundException('Refresh token not found');
         }
+    
         
-        // Refresh Token 검증 및 페이로드 추출
         let payload;
         try {
             payload = jwt.verify(refreshToken, this.secretKey) as jwt.JwtPayload;
@@ -26,13 +40,28 @@ export class AuthService {
             }
             throw new UnauthorizedException('Invalid refresh token');
         }
+    
         
-        // exp 속성 제거 (만료 시간 정보를 지웁니다)
         const { exp, ...payloadWithoutExp } = payload;
+    
         
-        // 새로운 액세스 토큰 생성 (expiresIn 옵션 사용)
         const accessToken = jwt.sign(payloadWithoutExp, this.secretKey, { expiresIn: '1h' });
-        
+    
         return { access_token: accessToken };
+    }
+    
+
+  // 유저 정보 조회
+  async getUserInfo(user_name: string): Promise<{ user_name: string, user_email: string }> {
+    const user = await this.userRepository.findOne({ where: { user_name: user_name } });
+    if (!user) {
+        throw new NotFoundException('User not found');
+    }
+
+    // 필요한 데이터만 반환
+    return { 
+        user_name: user.user_name, 
+        user_email: user.user_email 
+    };
     }
 }

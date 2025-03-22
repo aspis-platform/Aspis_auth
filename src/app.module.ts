@@ -11,6 +11,7 @@ import { EmailModule } from './global/email/email.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './global/security/roles.guard';
 import { JwtModule } from '@nestjs/jwt';
+import { refreshToken } from './domain/auth/dto/entity/refresh.entity';
 
 
 @Module({
@@ -25,7 +26,7 @@ import { JwtModule } from '@nestjs/jwt';
       secret: process.env.JWT_SECRETKEY,
       signOptions: { expiresIn: '1h' },
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User,refreshToken]),
     UserModule,  // User 관련 모듈
     AuthModule,  // Auth 관련 모듈
     RedisModule,

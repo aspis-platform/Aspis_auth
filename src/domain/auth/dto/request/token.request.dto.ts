@@ -1,7 +1,3 @@
-import { IsNotEmpty, IsString } from "class-validator";
-
-export class tokenRequestDto{
-    @IsNotEmpty()
-    @IsString()
-    refresh_token:string;
+export class TokenRequestDto {
+    refresh_token: string;  
 }
