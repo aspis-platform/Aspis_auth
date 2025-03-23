@@ -37,18 +37,20 @@ async setEmail(email: string, ttl: number = 3600): Promise<string> { //저장된
 
   async getAllUsers(): Promise<any[]> {
 
-const keys = await this.redisClient.keys('*'); 
+    const keys = await this.redisClient.keys('*'); 
     
-if (keys.length === 0) return []; // 키가 없으면 빈 배열 반환
-
-
-const values = await this.redisClient.mget(keys); 
-
-
-const filteredValues = values.filter(value => value !== null);
-
-return filteredValues; // null 값을 제외한 value 값만 반환
-}
+    if (keys.length === 0) return []; // 키가 없으면 빈 배열 반환
+    
+    const values = await this.redisClient.mget(keys); 
+    
+    // key-value 형태로 변환
+    const keyValuePairs = keys.map((key, index) => ({
+      id: key,
+      email: values[index]
+    })).filter(item => item.email !== null); // null 값 제외
+    
+    return keyValuePairs;
+  }    
 
   
 async deleteEmail(key: string): Promise<{ message: string }> {

@@ -7,6 +7,7 @@ import { loginResponseDto } from "./dto/response/login.response.dto";
 import { Roles } from "src/global/security/roles.decorator";
 import { UserAuthority } from "../entity/authority.enum";
 import { updateRequestDto } from "./dto/request/update.request.dto";
+import { User } from "../entity/user.entity";
 
 @Controller('user') // s 추가하면 restful하게 짤 수 있음 
 export class UserController {
@@ -40,6 +41,9 @@ export class UserController {
     }
 
 
+    @Roles(UserAuthority.MANAGER,UserAuthority.STAFF) // 자기 자신 정보찾을 때 토큰에서 userid가져와서 그거 맞는 이메일과 이름 반환
+
+    
     @Roles(UserAuthority.MANAGER)
     @Get()
     async getUsers() {

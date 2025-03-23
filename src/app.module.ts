@@ -31,7 +31,7 @@ import { refreshToken } from './domain/auth/dto/entity/refresh.entity';
     AuthModule,  // Auth 관련 모듈
     RedisModule,
     InviteModule,
-    EmailModule
+    EmailModule,
   ],
   providers: [
     {

@@ -9,6 +9,7 @@ import { User } from 'src/domain/user/entity/user.entity';
 
 @Injectable()
 export class AuthService {
+    jwtService: any;
 
     constructor(@Inject('REDIS_CLIENT') private readonly redisClient: Redis,
     private readonly configService: ConfigService,
@@ -50,18 +51,29 @@ export class AuthService {
         return { access_token: accessToken };
     }
     
+    
+    async findMe(request: any) {
+        try {
+          
+          const userId = request.user_id.sub; 
+          
+          // 데이터베이스에서 사용자 정보 조회
+          const user = await this.userRepository.findOne({ where: { id: userId } });
+          if (!user) {
+            throw new UnauthorizedException('사용자를 찾을 수 없습니다');
+          }
+          
+          // 필요한 정보만 리턴
+          return {
+            id: user.id,
+            email: user.user_email // 필드명은 실제 엔티티 구조에 맞게 조정
+          };
+        } catch (error) {
+          throw new UnauthorizedException('인증에 실패했습니다: ' + error.message);
+        }
+      }
+    
 
-  // 유저 정보 조회
-  async getUserInfo(user_name: string): Promise<{ user_name: string, user_email: string }> {
-    const user = await this.userRepository.findOne({ where: { user_name: user_name } });
-    if (!user) {
-        throw new NotFoundException('User not found');
-    }
 
-    // 필요한 데이터만 반환
-    return { 
-        user_name: user.user_name, 
-        user_email: user.user_email 
-    };
-    }
 }
+
