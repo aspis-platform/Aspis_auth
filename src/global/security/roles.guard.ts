@@ -4,12 +4,17 @@ import { JwtService } from '@nestjs/jwt';
 import { UserAuthority } from 'src/domain/user/entity/authority.enum';
 import { ROLES_KEY } from './roles.decorator';
 import { JwtPayload } from '../jwt/jwt-payload.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/domain/user/entity/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     //jwt가 유효한지 확인하는 코드 추가
   ) {}
 
@@ -35,16 +40,15 @@ export class RolesGuard implements CanActivate {
     
     const token = authHeader.substring(7);
     
-    
-    
-    
-  try  {
+    try  {
     // JWT 검증 및 페이로드 추출 (서명 검증 포함)
     const payload = this.jwtService.verify<JwtPayload>(token, {
       secret: process.env.JWT_SECRET, // 서명 검증을 위한 비밀 키
     });
     
-    request.user = payload; // 요청 객체에 사용자 정보 추가
+    request.user = await this.userRepository.findOne({where : {
+      id : payload.id
+    }})
   
     // 사용자가 필요한 역할을 하나라도 가지고 있는지 확인
     const hasRequiredRole = requiredRoles.some(role => 

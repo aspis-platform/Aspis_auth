@@ -101,11 +101,11 @@ export class UserService {
     
 
     async DeleteUser(data: deleteRequestDto): Promise<any> {
-        const { user_name } = data;
+        const { user_id } = data;
     
         try {
             // 사용자 찾기
-            const user = await this.userRepository.findOne({ where: { user_name } });
+            const user = await this.userRepository.findOne({ where: { id: user_id } });
     
             // 사용자가 없으면 오류 메시지 반환
             if (!user) {
@@ -113,10 +113,10 @@ export class UserService {
             }
     
             // 사용자 삭제
-            await this.userRepository.delete({ user_name });
+            await this.userRepository.delete({ id: user_id });
     
             // 정상적으로 삭제되면 200 OK 반환
-            return { message: `User ${user_name} has been deleted successfully.`, statusCode: HttpStatus.OK };
+            return { message: `UserID : ${user_id} has been deleted successfully.`, statusCode: HttpStatus.OK };
         } catch (error) {
             // 예외 발생 시 로그 출력 및 예외 처리
             console.error('Error deleting user:', error);

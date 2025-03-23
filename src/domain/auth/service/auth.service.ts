@@ -1,4 +1,5 @@
-import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { JwtPayload } from './../../../global/jwt/jwt-payload.interface';
+import { Inject, Injectable, NotFoundException, Req, UnauthorizedException } from '@nestjs/common';
 import Redis from 'ioredis';
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
@@ -6,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { refreshToken } from '../dto/entity/refresh.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/domain/user/entity/user.entity';
+import { CustomRequest } from 'src/global/types/custom-request.interface';
 
 @Injectable()
 export class AuthService {
@@ -41,10 +43,7 @@ export class AuthService {
             }
             throw new UnauthorizedException('Invalid refresh token');
         }
-    
-        
         const { exp, ...payloadWithoutExp } = payload;
-    
         
         const accessToken = jwt.sign(payloadWithoutExp, this.secretKey, { expiresIn: '1h' });
     
@@ -52,28 +51,32 @@ export class AuthService {
     }
     
     
-    async findMe(request: any) {
+    async findMe(@Req() request: CustomRequest) {
         try {
-          
-          const userId = request.user_id.sub; 
-          
-          // 데이터베이스에서 사용자 정보 조회
-          const user = await this.userRepository.findOne({ where: { id: userId } });
-          if (!user) {
-            throw new UnauthorizedException('사용자를 찾을 수 없습니다');
-          }
-          
-          // 필요한 정보만 리턴
-          return {
-            id: user.id,
-            email: user.user_email // 필드명은 실제 엔티티 구조에 맞게 조정
-          };
-        } catch (error) {
-          throw new UnauthorizedException('인증에 실패했습니다: ' + error.message);
-        }
-      }
+            const user = request.user as User;
+            console.log(user);
     
-
+            if (!user) {
+                throw new UnauthorizedException('유저 정보를 찾을 수 없습니다');
+            }
+    
+            return { userId: user.id,
+                userEmail: user.user_email,
+                userName: user.user_name
+            };
+        } catch (error) {
+            console.error('토큰 디코딩 실패:', error.message);
+            throw new UnauthorizedException('토큰에서 사용자 ID를 추출할 수 없습니다');
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
 
 }
 

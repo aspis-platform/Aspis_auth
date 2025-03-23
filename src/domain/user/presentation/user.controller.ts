@@ -41,9 +41,9 @@ export class UserController {
     }
 
 
-    @Roles(UserAuthority.MANAGER,UserAuthority.STAFF) // 자기 자신 정보찾을 때 토큰에서 userid가져와서 그거 맞는 이메일과 이름 반환
+    @Roles(UserAuthority.MANAGER,UserAuthority.STAFF) // 자기 정보 수정하는 코드
 
-    
+
     @Roles(UserAuthority.MANAGER)
     @Get()
     async getUsers() {
