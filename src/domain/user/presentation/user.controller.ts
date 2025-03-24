@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Patch, Post, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpStatus, Patch, Post, Req, ValidationPipe } from "@nestjs/common";
 import { UserService } from "../service/user.service";
 import { deleteRequestDto } from "./dto/request/delete.request.dto";
 import { loginRequestDto } from "./dto/request/login.request.dto";
@@ -8,6 +8,7 @@ import { Roles } from "src/global/security/roles.decorator";
 import { UserAuthority } from "../entity/authority.enum";
 import { updateRequestDto } from "./dto/request/update.request.dto";
 import { User } from "../entity/user.entity";
+import { CustomRequest } from "src/global/types/custom-request.interface";
 
 @Controller('user') // s 추가하면 restful하게 짤 수 있음 
 export class UserController {
@@ -42,6 +43,13 @@ export class UserController {
 
 
     @Roles(UserAuthority.MANAGER,UserAuthority.STAFF) // 자기 정보 수정하는 코드
+    @Patch('/update')
+    async update(
+        @Body(new ValidationPipe()) data:updateRequestDto,
+        @Req() request: CustomRequest) {
+        return await this.UserService.updateUser(request,data);  
+    }
+
 
 
     @Roles(UserAuthority.MANAGER)

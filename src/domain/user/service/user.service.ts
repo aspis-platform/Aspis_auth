@@ -1,10 +1,10 @@
 import { refreshToken } from './../../auth/dto/entity/refresh.entity';
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
 import { Repository } from 'typeorm';
 import * as jwt from 'jsonwebtoken';
-import { hash, compare } from 'bcryptjs'; // bcryptjs로 변경
+import { hash, compare } from 'bcrypt';
 import Redis from 'ioredis';
 import { EmailService } from 'src/global/email/email.sender';
 import { deleteRequestDto } from '../presentation/dto/request/delete.request.dto';
@@ -13,6 +13,10 @@ import { registerRequestDto } from '../presentation/dto/request/register.request
 import { loginResponseDto } from '../presentation/dto/response/login.response.dto';
 import { ConfigService } from '@nestjs/config';
 import { UserAuthority } from '../entity/authority.enum';
+import { CustomRequest } from 'src/global/types/custom-request.interface';
+import { updateRequestDto } from '../presentation/dto/request/update.request.dto';
+import * as bcrypt from 'bcrypt';
+
 
 @Injectable()
 export class UserService {
@@ -97,6 +101,32 @@ export class UserService {
         return await this.userRepository.find({
             select: ['id', 'user_name', 'user_email', 'user_authority'],  // 비밀번호 제외하고 필드 선택
         });
+    }
+    
+    async updateUser(request: CustomRequest, data: updateRequestDto) {
+        try {
+            const user = request.user as User;
+            console.log(user);
+    
+            if (!user) {
+                throw new UnauthorizedException('유저 정보를 찾을 수 없습니다');
+            }
+    
+            // 비밀번호 필드가 있는 경우 해싱
+            if (data.user_password) {
+                const saltRounds = 10;
+                data.user_password = await bcrypt.hash(data.user_password, saltRounds);
+            }
+    
+            await this.userRepository.update(user.id, data);
+            const updatedUser = await this.userRepository.findOne({ where: { id: user.id } });
+    
+            return updatedUser;
+    
+        } catch (error) {
+            console.error('토큰 디코딩 실패:', error.message);
+            throw new UnauthorizedException('토큰에서 사용자 ID를 추출할 수 없습니다');
+        }
     }
     
 
