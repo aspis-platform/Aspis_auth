@@ -22,7 +22,6 @@ export class AuthService {
 ) {}
 
 
-    
     private secretKey = this.configService.get<string>('JWT_SECRETKEY');
     
     async reissueToken(refreshToken: string): Promise<{ access_token: string }> {
