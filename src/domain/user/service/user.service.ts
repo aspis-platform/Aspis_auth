@@ -8,9 +8,9 @@ import * as jwt from 'jsonwebtoken';
 import { hash, compare } from 'bcrypt';
 import Redis from 'ioredis';
 import { EmailService } from 'src/global/email/email.sender';
-import { deleteRequestDto } from '../presentation/dto/request/delete.request.dto';
-import { loginRequestDto } from '../presentation/dto/request/login.request.dto';
-import { registerRequestDto } from '../presentation/dto/request/register.request.dto';
+import { DeleteRequestDto } from '../presentation/dto/request/delete.request.dto';
+import { LoginRequestDto } from '../presentation/dto/request/login.request.dto';
+import { RegisterRequestDto } from '../presentation/dto/request/register.request.dto';
 import { loginResponseDto } from '../presentation/dto/response/login.response.dto';
 import { ConfigService } from '@nestjs/config';
 import { CustomRequest } from 'src/global/types/custom-request.interface';
@@ -31,7 +31,7 @@ export class UserService {
         private readonly configService: ConfigService,
     ) { }
 
-    async createUser(data: registerRequestDto) {
+    async createUser(data: RegisterRequestDto) {
         const { user_name, key, user_password } = data;
     
         
@@ -70,7 +70,7 @@ export class UserService {
     }
     
 
-    async loginUser(data: loginRequestDto): Promise<loginResponseDto> {
+    async loginUser(data: LoginRequestDto): Promise<loginResponseDto> {
         const { user_email, user_password } = data;
         const user = await this.userRepository.findOneBy({ user_email });
         
@@ -132,7 +132,7 @@ export class UserService {
     }
     
 
-    async DeleteUser(data: deleteRequestDto): Promise<any> {
+    async DeleteUser(data: DeleteRequestDto): Promise<any> {
         const { user_id } = data;
     
         try {
