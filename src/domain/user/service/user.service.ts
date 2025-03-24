@@ -1,4 +1,5 @@
-import { refreshToken } from './../../auth/dto/entity/refresh.entity';
+import { UserAuthority } from 'src/domain/user/entity/authority.enum';
+import { RefreshToken } from './../../auth/dto/entity/refresh.entity';
 import { HttpException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
@@ -12,7 +13,6 @@ import { loginRequestDto } from '../presentation/dto/request/login.request.dto';
 import { registerRequestDto } from '../presentation/dto/request/register.request.dto';
 import { loginResponseDto } from '../presentation/dto/response/login.response.dto';
 import { ConfigService } from '@nestjs/config';
-import { UserAuthority } from '../entity/authority.enum';
 import { CustomRequest } from 'src/global/types/custom-request.interface';
 import { updateRequestDto } from '../presentation/dto/request/update.request.dto';
 import * as bcrypt from 'bcrypt';
@@ -23,8 +23,8 @@ export class UserService {
     constructor( 
         @InjectRepository(User)
         private userRepository: Repository<User>,
-        @InjectRepository(refreshToken)
-        private refreshRepository: Repository<refreshToken>,
+        @InjectRepository(RefreshToken)
+        private refreshRepository: Repository<RefreshToken>,
         @Inject('REDIS_CLIENT') 
         private readonly redisClient: Redis,
         private emailService: EmailService,
@@ -85,6 +85,7 @@ export class UserService {
     
         const accessToken = jwt.sign(payload, secretKey, { expiresIn: '1h' });
         const refreshToken = jwt.sign(payload, secretKey, { expiresIn: '1y' });
+        
 
         await this.refreshRepository.save({
             refreshToken: refreshToken,
@@ -93,7 +94,8 @@ export class UserService {
 
         return {
             access_token: accessToken,
-            refresh_token: refreshToken
+            refresh_token: refreshToken,
+            user_authority : user.user_authority
         };
     }
 

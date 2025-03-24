@@ -4,7 +4,7 @@ import Redis from 'ioredis';
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { refreshToken } from '../dto/entity/refresh.entity';
+import { RefreshToken } from '../dto/entity/refresh.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/domain/user/entity/user.entity';
 import { CustomRequest } from 'src/global/types/custom-request.interface';
@@ -15,8 +15,8 @@ export class AuthService {
 
     constructor(@Inject('REDIS_CLIENT') private readonly redisClient: Redis,
     private readonly configService: ConfigService,
-    @InjectRepository(refreshToken)
-    private refreshRepository: Repository<refreshToken>,
+    @InjectRepository(RefreshToken)
+    private refreshRepository: Repository<RefreshToken>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
 ) {}
