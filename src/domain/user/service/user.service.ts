@@ -104,25 +104,45 @@ export class UserService {
             select: ['id', 'user_name', 'user_email', 'user_authority'],  // 비밀번호 제외하고 필드 선택
         });
     }
-    
+
+
+
     async updateUser(request: CustomRequest, data: updateRequestDto) {
+        console.log('🔹 request.user:', request.user);
+    
         try {
-            const user = request.user as User;
+            const user = request.user as User; // request.user에는 가드에서 통과한 인증 정보(즉, 페이로드)가 들어감
+    
             console.log(user);
     
             if (!user) {
                 throw new UnauthorizedException('유저 정보를 찾을 수 없습니다');
             }
     
-            // 비밀번호 필드가 있는 경우 해싱
-            if (data.user_password) {
-                const saltRounds = 10;
-                data.user_password = await bcrypt.hash(data.user_password, saltRounds);
+            // 기존 비밀번호 비교
+            const isPasswordValid = await bcrypt.compare(data.user_old_password, user.user_password);
+            if (!isPasswordValid) {
+                throw new UnauthorizedException('기존 비밀번호가 틀립니다.');
             }
     
-            await this.userRepository.update(user.id, data);
-            const updatedUser = await this.userRepository.findOne({ where: { id: user.id } });
+            // 새로운 비밀번호가 있으면 해시해서 저장
+            if (data.user_new_password) {
+                const saltRounds = 10;
+                data.user_new_password = await bcrypt.hash(data.user_new_password, saltRounds);
+            }
     
+            //새 정보가 담기지 않았으면 원래 있던 정보 그대로 유지
+            const updatedData = {
+                user_name: data.user_name || user.user_name,
+                user_email: data.user_email || user.user_email,
+                user_password: data.user_new_password || user.user_password, // 새로운 비밀번호가 없으면 기존 비밀번호 그대로 유지
+            };
+    
+            // 사용자 정보 업데이트
+            await this.userRepository.update(user.id, updatedData);
+    
+            // 업데이트된 사용자 정보 반환
+            const updatedUser = await this.userRepository.findOne({ where: { id: user.id } });
             return updatedUser;
     
         } catch (error) {

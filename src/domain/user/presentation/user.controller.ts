@@ -7,7 +7,6 @@ import { loginResponseDto } from "./dto/response/login.response.dto";
 import { Roles } from "src/global/security/roles.decorator";
 import { UserAuthority } from "../entity/authority.enum";
 import { updateRequestDto } from "./dto/request/update.request.dto";
-import { User } from "../entity/user.entity";
 import { CustomRequest } from "src/global/types/custom-request.interface";
 
 @Controller('user') // s 추가하면 restful하게 짤 수 있음 
@@ -49,7 +48,7 @@ export class UserController {
         @Req() request: CustomRequest) {
         return await this.UserService.updateUser(request,data);  
     }
-
+    
 
 
     @Roles(UserAuthority.MANAGER)

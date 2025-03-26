@@ -9,7 +9,7 @@ import { User } from 'src/domain/user/entity/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class RolesGuard implements CanActivate {
+export class RolesGuard implements CanActivate {// CanActivate요청이 처리되기 전에 해당 요청을 "허용할지" 또는 "거부할지" 결정하는 메서드를 정의
   constructor(
     private reflector: Reflector,
     private jwtService: JwtService,
@@ -18,11 +18,11 @@ export class RolesGuard implements CanActivate {
     //jwt가 유효한지 확인하는 코드 추가
   ) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> { //ExecutionContext을 사용하면 다음에 어떠한 라우트 핸들러가 실행되는지 알수있음
     // 컨트롤러나 핸들러에 설정된 필요 역할 가져오기
     const requiredRoles = this.reflector.getAllAndOverride<UserAuthority []>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
+      context.getHandler(),   // 요청을 처리할 수 있는 컨트롤러 클래스에 대한 정보.
+      context.getClass(),   //요청을 처리하는 메소드(핸들러)에 대한 정보.
     ]);
 
     // 역할 제한이 없으면 접근 허용
@@ -47,7 +47,7 @@ export class RolesGuard implements CanActivate {
     });
     
     request.user = await this.userRepository.findOne({where : {
-      id : payload.id
+      id : payload.id  //JWT 토큰 페이로드에 userid를 가져와 해당하는 사용자의 정보를 조회
     }})
   
     // 사용자가 필요한 역할을 하나라도 가지고 있는지 확인
