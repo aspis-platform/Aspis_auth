@@ -2,6 +2,7 @@ import { IsNotEmpty, IsString } from "class-validator";
 
 export class updateRequestDto{
 
+    @IsNotEmpty()
     @IsString()
     user_old_password: string
 
