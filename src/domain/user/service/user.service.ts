@@ -87,7 +87,7 @@ export class UserService {
         const JWT_PROPERTIES = {
             HEADER: 'Authorization',
             PREFIX: 'Bearer ',
-            ACCESS: 'JWT',
+            ACCESS: 'access',
             REFRESH: 'refresh',
             AUTHORITY: 'authority'
           };
