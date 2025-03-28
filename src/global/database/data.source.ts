@@ -11,7 +11,7 @@ export const dataSource = new DataSource({
   port: 3306,  // MySQL 기본 포트
   username: process.env.DB_USERNAME,  // MySQL 사용자 이름
   password: process.env.DB_PASSWORD,  // MySQL 비밀번호
-  database: 'prod_aspis',  // 데이터베이스 이름
+  database: process.env.MYSQL_NAME,  // 데이터베이스 이름
   entities: [User,RefreshToken], 
   synchronize: true, 
   logging: true,
