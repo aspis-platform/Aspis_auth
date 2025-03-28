@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { UserService } from '../user/service/user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entity/user.entity';
+import { tbl_user } from './entity/user.entity';
 import { UserController } from './presentation/user.controller';
 import { RedisModule } from '../../global/redis/redis.datasource';
 import { InviteModule } from '../invite/invite.module';
 import { EmailModule } from 'src/global/email/email.module';
-import { RefreshToken } from '../auth/dto/entity/refresh.entity';
+import { tbl_refreshToken } from '../auth/dto/entity/refresh.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User,RefreshToken]),
+  imports: [TypeOrmModule.forFeature([tbl_user,tbl_refreshToken]),
   RedisModule,
   EmailModule,
   InviteModule], //→ Redis, 이메일 관련 기능, 초대 관련 기능을 사용할 수 있도록 가져옴.

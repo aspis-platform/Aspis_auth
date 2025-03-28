@@ -5,7 +5,7 @@ import { UserAuthority } from 'src/domain/user/entity/authority.enum';
 import { ROLES_KEY } from './roles.decorator';
 import { JwtPayload } from '../jwt/jwt-payload.interface';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/domain/user/entity/user.entity';
+import { tbl_user } from 'src/domain/user/entity/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -13,8 +13,8 @@ export class RolesGuard implements CanActivate {// CanActivate요청이 처리�
   constructor(
     private reflector: Reflector,
     private jwtService: JwtService,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    @InjectRepository(tbl_user)
+    private userRepository: Repository<tbl_user>,
     //jwt가 유효한지 확인하는 코드 추가
   ) {}
 

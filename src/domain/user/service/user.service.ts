@@ -1,9 +1,9 @@
 import { updatePasswordRequestDto } from './../presentation/dto/request/updatePassword.request.dto';
 import { UserAuthority } from 'src/domain/user/entity/authority.enum';
-import { RefreshToken } from './../../auth/dto/entity/refresh.entity';
+import { tbl_refreshToken } from './../../auth/dto/entity/refresh.entity';
 import { HttpException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../entity/user.entity';
+import { tbl_user } from '../entity/user.entity';
 import { Repository } from 'typeorm';
 import * as jwt from 'jsonwebtoken';
 import { hash, compare } from 'bcrypt';
@@ -22,10 +22,10 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UserService {
     constructor( 
-        @InjectRepository(User)
-        private userRepository: Repository<User>,
-        @InjectRepository(RefreshToken)
-        private refreshRepository: Repository<RefreshToken>,
+        @InjectRepository(tbl_user)
+        private userRepository: Repository<tbl_user>,
+        @InjectRepository(tbl_refreshToken)
+        private refreshRepository: Repository<tbl_refreshToken>,
         @Inject('REDIS_CLIENT') 
         private readonly redisClient: Redis,
         private emailService: EmailService,
@@ -139,7 +139,7 @@ export class UserService {
         console.log('🔹 request.user:', request.user);
     
         try {
-            const user = request.user as User; // request.user에는 가드에서 통과한 인증 정보(즉, 페이로드)가 들어감
+            const user = request.user as tbl_user; // request.user에는 가드에서 통과한 인증 정보(즉, 페이로드)가 들어감
     
             console.log(user);
     
@@ -157,12 +157,13 @@ export class UserService {
     
             // 업데이트된 사용자 정보 반환
             const updatedUser = await this.userRepository.findOne({ where: { id: user.id } });
-            return updatedUser;
+            return {statusCode: HttpStatus.OK}
     
         } catch (error) {
             console.error('토큰 디코딩 실패:', error.message);
             throw new UnauthorizedException('토큰에서 사용자 ID를 추출할 수 없습니다');
         }
+        
     }
     
 
@@ -170,7 +171,7 @@ export class UserService {
         console.log('🔹 request.user:', request.user);
     
         try {
-            const user = request.user as User; // request.user에는 가드에서 통과한 인증 정보(즉, 페이로드)가 들어감
+            const user = request.user as tbl_user; // request.user에는 가드에서 통과한 인증 정보(즉, 페이로드)가 들어감
     
             console.log(user);
     
@@ -200,7 +201,7 @@ export class UserService {
     
             // 업데이트된 사용자 정보 반환
             const updatedUser = await this.userRepository.findOne({ where: { id: user.id } });
-            return updatedUser;
+            return {statusCode: HttpStatus.OK}
     
         } catch (error) {
             console.error('토큰 디코딩 실패:', error.message);
