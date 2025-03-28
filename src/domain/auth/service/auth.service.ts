@@ -25,6 +25,14 @@ export class AuthService {
     private secretKey = this.configService.get<string>('JWT_SECRETKEY');
     
     async reissueToken(refreshToken: string): Promise<{ access_token: string }> {
+
+        const JWT_PROPERTIES = {
+            HEADER: 'Authorization',
+            PREFIX: 'Bearer ',
+            ACCESS: 'access',
+            REFRESH: 'refresh',
+            AUTHORITY: 'authority'
+          };
         
         const tokenEntity = await this.refreshRepository.findOne({ where: { refreshToken } });
     
@@ -43,8 +51,17 @@ export class AuthService {
             throw new UnauthorizedException('Invalid refresh token');
         }
         const { exp, ...payloadWithoutExp } = payload;
+
+        const accessTokenOptions: jwt.SignOptions = {
+            algorithm: 'HS256',
+            header: {
+                typ: JWT_PROPERTIES.ACCESS,
+                alg: 'HS256'  // 여기에 알고리즘을 명시적으로 지정
+            },
+            expiresIn: '1h'
+        };
         
-        const accessToken = jwt.sign(payloadWithoutExp, this.secretKey, { expiresIn: '1h' });
+        const accessToken = jwt.sign(payloadWithoutExp, this.secretKey, accessTokenOptions);
     
         return { access_token: accessToken };
     }
