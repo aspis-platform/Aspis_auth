@@ -6,12 +6,12 @@ import { dataSource } from './global/database/data.source'; // dataSource import
 import { RedisModule } from './global/redis/redis.datasource';  // 경로 수정
 import { InviteModule } from './domain/invite/invite.module';
 import { ConfigModule } from '@nestjs/config';
-import { tbl_user } from './domain/user/entity/user.entity';
+import { User } from './domain/user/entity/user.entity';
 import { EmailModule } from './global/email/email.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './global/security/roles.guard';
 import { JwtModule } from '@nestjs/jwt';
-import { tbl_refreshToken } from './domain/auth/entity/refresh.entity';
+import { RefreshToken } from './domain/auth/entity/refresh.entity';
 
 
 @Module({
@@ -26,7 +26,7 @@ import { tbl_refreshToken } from './domain/auth/entity/refresh.entity';
       secret: process.env.JWT_SECRETKEY,
       signOptions: { expiresIn: '1h' },
     }),
-    TypeOrmModule.forFeature([tbl_user,tbl_refreshToken]),
+    TypeOrmModule.forFeature([User,RefreshToken]),
     UserModule,  // User 관련 모듈
     AuthModule,  // Auth 관련 모듈
     RedisModule,

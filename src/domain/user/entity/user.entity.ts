@@ -3,7 +3,7 @@ import { UserAuthority } from "./authority.enum";
 import { matches } from "class-validator";
 
 @Entity('tbl_user')
-export class tbl_user{
+export class User{
     @PrimaryGeneratedColumn('uuid') //primaryColumn으로 하면 내가 직접 설정 해주어야함
     id:string;
 

@@ -4,9 +4,9 @@ import Redis from 'ioredis';
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { tbl_refreshToken } from '../entity/refresh.entity';
+import { RefreshToken } from '../entity/refresh.entity';
 import { Repository } from 'typeorm';
-import { tbl_user } from 'src/domain/user/entity/user.entity';
+import { User } from 'src/domain/user/entity/user.entity';
 import { CustomRequest } from 'src/global/types/custom-request.interface';
 
 @Injectable()
@@ -15,10 +15,10 @@ export class AuthService {
 
     constructor(@Inject('REDIS_CLIENT') private readonly redisClient: Redis,
     private readonly configService: ConfigService,
-    @InjectRepository(tbl_refreshToken)
-    private refreshRepository: Repository<tbl_refreshToken>,
-    @InjectRepository(tbl_user)
-    private userRepository: Repository<tbl_user>,
+    @InjectRepository(RefreshToken)
+    private refreshRepository: Repository<RefreshToken>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
 ) {}
 
 
@@ -69,7 +69,7 @@ export class AuthService {
     
     async findMe(@Req() request: CustomRequest) {
         try {
-            const user = request.user as tbl_user;
+            const user = request.user as User;
             console.log(user);
     
             if (!user) {
