@@ -31,6 +31,7 @@ export class UserService {
         private readonly configService: ConfigService,
     ) { }
 
+
     async createUser(data: RegisterRequestDto) {
         const { user_name, key, user_password } = data;
     
@@ -83,10 +84,36 @@ export class UserService {
         const payload = { authority: role, id: user.id };
         const secretKey = this.configService.get<string>('JWT_SECRETKEY');
     
-        const accessToken = jwt.sign(payload, secretKey, { expiresIn: '1h' });
-        const refreshToken = jwt.sign(payload, secretKey, { expiresIn: '1y' });
+        const JWT_PROPERTIES = {
+            HEADER: 'Authorization',
+            PREFIX: 'Bearer ',
+            ACCESS: 'JWT',
+            REFRESH: 'refresh',
+            AUTHORITY: 'authority'
+          };
+          
+          const accessTokenOptions: jwt.SignOptions = {
+            algorithm: 'HS256',
+            header: {
+                typ: JWT_PROPERTIES.ACCESS,
+                alg: 'HS256'  // 여기에 알고리즘을 명시적으로 지정
+            },
+            expiresIn: '1h'
+        };
         
-
+        const refreshTokenOptions: jwt.SignOptions = {
+            algorithm: 'HS256',
+            header: {
+                typ: JWT_PROPERTIES.REFRESH,
+                alg: 'HS256'  // 여기에도 알고리즘을 명시적으로 지정
+            },
+            expiresIn: '1y'
+        };
+          
+          
+          const accessToken = jwt.sign(payload, secretKey, accessTokenOptions);
+          const refreshToken = jwt.sign(payload, secretKey, refreshTokenOptions);
+          
         await this.refreshRepository.save({
             refreshToken: refreshToken,
         });
