@@ -1,3 +1,4 @@
+import { updatePasswordRequestDto } from './../presentation/dto/request/updatePassword.request.dto';
 import { UserAuthority } from 'src/domain/user/entity/authority.enum';
 import { RefreshToken } from './../../auth/dto/entity/refresh.entity';
 import { HttpException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
@@ -14,7 +15,7 @@ import { RegisterRequestDto } from '../presentation/dto/request/register.request
 import { loginResponseDto } from '../presentation/dto/response/login.response.dto';
 import { ConfigService } from '@nestjs/config';
 import { CustomRequest } from 'src/global/types/custom-request.interface';
-import { updateRequestDto } from '../presentation/dto/request/update.request.dto';
+import { updateProfileRequestDto } from '../presentation/dto/request/updateProfile.request.dto';
 import * as bcrypt from 'bcrypt';
 
 
@@ -134,7 +135,38 @@ export class UserService {
 
 
 
-    async updateUser(request: CustomRequest, data: updateRequestDto) {
+    async updateProfileUser(request: CustomRequest, data: updateProfileRequestDto) {
+        console.log('🔹 request.user:', request.user);
+    
+        try {
+            const user = request.user as User; // request.user에는 가드에서 통과한 인증 정보(즉, 페이로드)가 들어감
+    
+            console.log(user);
+    
+            if (!user) {
+                throw new UnauthorizedException('유저 정보를 찾을 수 없습니다');
+            }
+    
+            //새 정보가 담기지 않았으면 원래 있던 정보 그대로 유지
+            const updatedData = {
+                user_name: data.user_name || user.user_name,
+            }
+    
+            // 사용자 정보 업데이트
+            await this.userRepository.update(user.id, updatedData);
+    
+            // 업데이트된 사용자 정보 반환
+            const updatedUser = await this.userRepository.findOne({ where: { id: user.id } });
+            return updatedUser;
+    
+        } catch (error) {
+            console.error('토큰 디코딩 실패:', error.message);
+            throw new UnauthorizedException('토큰에서 사용자 ID를 추출할 수 없습니다');
+        }
+    }
+    
+
+    async updatePasswordUser(request: CustomRequest, data: updatePasswordRequestDto) {
         console.log('🔹 request.user:', request.user);
     
         try {
@@ -160,8 +192,6 @@ export class UserService {
     
             //새 정보가 담기지 않았으면 원래 있던 정보 그대로 유지
             const updatedData = {
-                user_name: data.user_name || user.user_name,
-                user_email: data.user_email || user.user_email,
                 user_password: data.user_new_password || user.user_password, // 새로운 비밀번호가 없으면 기존 비밀번호 그대로 유지
             };
     
@@ -177,7 +207,7 @@ export class UserService {
             throw new UnauthorizedException('토큰에서 사용자 ID를 추출할 수 없습니다');
         }
     }
-    
+
 
     async DeleteUser(data: DeleteRequestDto): Promise<any> {
         const { user_id } = data;
