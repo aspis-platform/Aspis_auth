@@ -1,7 +1,8 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 import { tbl_user } from 'src/domain/user/entity/user.entity';
-import { tbl_refreshToken } from 'src/domain/auth/dto/entity/refresh.entity';
+import { tbl_refreshToken } from 'src/domain/auth/entity/refresh.entity';
+
 
 config({ path: 'env.local' });
 

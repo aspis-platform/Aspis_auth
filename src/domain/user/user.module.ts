@@ -6,7 +6,7 @@ import { UserController } from './presentation/user.controller';
 import { RedisModule } from '../../global/redis/redis.datasource';
 import { InviteModule } from '../invite/invite.module';
 import { EmailModule } from 'src/global/email/email.module';
-import { tbl_refreshToken } from '../auth/dto/entity/refresh.entity';
+import { tbl_refreshToken } from '../auth/entity/refresh.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([tbl_user,tbl_refreshToken]),

@@ -11,7 +11,7 @@ import { EmailModule } from './global/email/email.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './global/security/roles.guard';
 import { JwtModule } from '@nestjs/jwt';
-import { tbl_refreshToken } from './domain/auth/dto/entity/refresh.entity';
+import { tbl_refreshToken } from './domain/auth/entity/refresh.entity';
 
 
 @Module({

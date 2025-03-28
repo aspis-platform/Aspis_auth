@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisModule } from '../../global/redis/redis.datasource';
 import { AuthService } from './service/auth.service';
 import { ConfigModule } from '@nestjs/config';
-import { tbl_refreshToken } from './dto/entity/refresh.entity';
+import { tbl_refreshToken } from './entity/refresh.entity';
 import { tbl_user } from '../user/entity/user.entity';
 import { RolesGuard } from 'src/global/security/roles.guard';
 import { JwtModule } from '@nestjs/jwt';

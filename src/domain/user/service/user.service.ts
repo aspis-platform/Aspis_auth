@@ -1,6 +1,6 @@
 import { updatePasswordRequestDto } from './../presentation/dto/request/updatePassword.request.dto';
 import { UserAuthority } from 'src/domain/user/entity/authority.enum';
-import { tbl_refreshToken } from './../../auth/dto/entity/refresh.entity';
+import { tbl_refreshToken } from '../../auth/entity/refresh.entity';
 import { HttpException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { tbl_user } from '../entity/user.entity';
