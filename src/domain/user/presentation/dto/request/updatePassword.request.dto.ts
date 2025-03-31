@@ -6,7 +6,6 @@ export class updatePasswordRequestDto{
 @IsString()
 user_old_password: string
 
-
 @IsStrongPassword({
     minLength: 10,         // 최소 10자
     minNumbers: 2,        // 최소 2개의 숫자
@@ -16,5 +15,6 @@ user_old_password: string
 
 @IsString()
 @IsStrongPassword()
-user_new_password:string //비밀번호를 무조건 수정 안해도됨
+@IsNotEmpty()
+user_new_password:string 
 }

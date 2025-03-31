@@ -97,7 +97,7 @@ export class UserService {
             algorithm: 'HS256',
             header: {
                 typ: JWT_PROPERTIES.ACCESS,
-                alg: 'HS256'  // 여기에 알고리즘을 명시적으로 지정
+                alg: 'HS256'  
             },
             expiresIn: '1h'
         };
@@ -106,7 +106,7 @@ export class UserService {
             algorithm: 'HS256',
             header: {
                 typ: JWT_PROPERTIES.REFRESH,
-                alg: 'HS256'  // 여기에도 알고리즘을 명시적으로 지정
+                alg: 'HS256'  
             },
             expiresIn: '1y'
         };
@@ -136,7 +136,7 @@ export class UserService {
 
 
     async updateProfileUser(request: CustomRequest, data: updateProfileRequestDto) {
-        console.log('🔹 request.user:', request.user);
+        console.log('request.user:', request.user);
     
         try {
             const user = request.user as User; // request.user에는 가드에서 통과한 인증 정보(즉, 페이로드)가 들어감
