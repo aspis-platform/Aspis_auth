@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './domain/user/user.module';
+
 import { AuthModule } from './domain/auth/auth.module';
 import { dataSource } from './global/database/data.source'; // dataSource import
 import { RedisModule } from './global/redis/redis.datasource';  // 경로 수정
@@ -12,6 +12,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './global/security/roles.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { RefreshToken } from './domain/auth/entity/refresh.entity';
+import { UserModule } from './domain/user/service/user.module';
 
 
 @Module({

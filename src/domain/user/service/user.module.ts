@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
-import { UserService } from '../user/service/user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entity/user.entity';
-import { UserController } from './presentation/user.controller';
-import { RedisModule } from '../../global/redis/redis.datasource';
-import { InviteModule } from '../invite/invite.module';
 import { EmailModule } from 'src/global/email/email.module';
-import { RefreshToken } from '../auth/entity/refresh.entity';
+import { RefreshToken } from 'src/domain/auth/entity/refresh.entity';
+import { InviteModule } from 'src/domain/invite/invite.module';
+import { RedisModule } from 'src/global/redis/redis.datasource';
+import { UserController } from '../presentation/user.controller';
+import { User } from '../entity/user.entity';
+import { UserService } from './user.service';
+
 
 @Module({
   imports: [TypeOrmModule.forFeature([User,RefreshToken]),

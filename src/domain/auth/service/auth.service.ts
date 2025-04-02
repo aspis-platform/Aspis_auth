@@ -1,4 +1,3 @@
-import { JwtPayload } from './../../../global/jwt/jwt-payload.interface';
 import { Inject, Injectable, NotFoundException, Req, UnauthorizedException } from '@nestjs/common';
 import Redis from 'ioredis';
 import * as jwt from 'jsonwebtoken';
