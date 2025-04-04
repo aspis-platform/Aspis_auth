@@ -1,6 +1,5 @@
 import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { UserAuthority } from "./authority.enum";
-import { matches } from "class-validator";
 
 @Entity('tbl_user') //테이블 이름
 export class User{
