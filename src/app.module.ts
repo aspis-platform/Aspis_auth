@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './domain/user/user.module';
+
 import { AuthModule } from './domain/auth/auth.module';
 import { dataSource } from './global/database/data.source'; // dataSource import
 import { RedisModule } from './global/redis/redis.datasource';  // 경로 수정
@@ -11,7 +11,8 @@ import { EmailModule } from './global/email/email.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './global/security/roles.guard';
 import { JwtModule } from '@nestjs/jwt';
-import { refreshToken } from './domain/auth/dto/entity/refresh.entity';
+import { RefreshToken } from './domain/auth/entity/refresh.entity';
+import { UserModule } from './domain/user/service/user.module';
 
 
 @Module({
@@ -26,7 +27,7 @@ import { refreshToken } from './domain/auth/dto/entity/refresh.entity';
       secret: process.env.JWT_SECRETKEY,
       signOptions: { expiresIn: '1h' },
     }),
-    TypeOrmModule.forFeature([User,refreshToken]),
+    TypeOrmModule.forFeature([User,RefreshToken]),
     UserModule,  // User 관련 모듈
     AuthModule,  // Auth 관련 모듈
     RedisModule,

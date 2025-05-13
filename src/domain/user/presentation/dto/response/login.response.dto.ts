@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsString } from "class-validator";
+import { UserAuthority } from "src/domain/user/entity/authority.enum";
 
 export class loginResponseDto{
     @IsNotEmpty()
@@ -8,4 +9,9 @@ export class loginResponseDto{
     @IsNotEmpty()
     @IsString()
     access_token:string
+
+
+    @IsNotEmpty()
+    @IsString()
+    user_authority: UserAuthority;
 }

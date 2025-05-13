@@ -1,10 +1,8 @@
 import { Roles } from 'src/global/security/roles.decorator';
 import { TokenRequestDto } from '../dto/request/token.request.dto';
 import { AuthService } from '../service/auth.service';
-import { Controller, Post, Get, Delete, Body, Param, HttpStatus, ValidationPipe, Patch, Query, Req, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Get, Body, ValidationPipe,  Req } from '@nestjs/common';
 import { UserAuthority } from 'src/domain/user/entity/authority.enum';
-import { RolesGuard } from 'src/global/security/roles.guard';
-import { findMeRequestDto } from '../dto/request/find.request.dto';
 import { CustomRequest } from 'src/global/types/custom-request.interface';
 
 @Controller('/auth')

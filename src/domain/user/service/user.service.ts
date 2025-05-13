@@ -1,33 +1,39 @@
-import { refreshToken } from './../../auth/dto/entity/refresh.entity';
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { updatePasswordRequestDto } from './../presentation/dto/request/updatePassword.request.dto';
+import { UserAuthority } from 'src/domain/user/entity/authority.enum';
+import { RefreshToken } from '../../auth/entity/refresh.entity';
+import { HttpException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
 import { Repository } from 'typeorm';
 import * as jwt from 'jsonwebtoken';
-import { hash, compare } from 'bcryptjs'; // bcryptjs로 변경
+import { hash, compare } from 'bcrypt';
 import Redis from 'ioredis';
 import { EmailService } from 'src/global/email/email.sender';
-import { deleteRequestDto } from '../presentation/dto/request/delete.request.dto';
-import { loginRequestDto } from '../presentation/dto/request/login.request.dto';
-import { registerRequestDto } from '../presentation/dto/request/register.request.dto';
+import { DeleteRequestDto } from '../presentation/dto/request/delete.request.dto';
+import { LoginRequestDto } from '../presentation/dto/request/login.request.dto';
+import { RegisterRequestDto } from '../presentation/dto/request/register.request.dto';
 import { loginResponseDto } from '../presentation/dto/response/login.response.dto';
 import { ConfigService } from '@nestjs/config';
-import { UserAuthority } from '../entity/authority.enum';
+import { CustomRequest } from 'src/global/types/custom-request.interface';
+import { updateProfileRequestDto } from '../presentation/dto/request/updateProfile.request.dto';
+import * as bcrypt from 'bcrypt';
+
 
 @Injectable()
 export class UserService {
     constructor( 
         @InjectRepository(User)
         private userRepository: Repository<User>,
-        @InjectRepository(refreshToken)
-        private refreshRepository: Repository<refreshToken>,
+        @InjectRepository(RefreshToken)
+        private refreshRepository: Repository<RefreshToken>,
         @Inject('REDIS_CLIENT') 
         private readonly redisClient: Redis,
         private emailService: EmailService,
         private readonly configService: ConfigService,
     ) { }
 
-    async createUser(data: registerRequestDto) {
+
+    async createUser(data: RegisterRequestDto) {
         const { user_name, key, user_password } = data;
     
         
@@ -66,7 +72,7 @@ export class UserService {
     }
     
 
-    async loginUser(data: loginRequestDto): Promise<loginResponseDto> {
+    async loginUser(data: LoginRequestDto): Promise<loginResponseDto> {
         const { user_email, user_password } = data;
         const user = await this.userRepository.findOneBy({ user_email });
         
@@ -79,9 +85,36 @@ export class UserService {
         const payload = { authority: role, id: user.id };
         const secretKey = this.configService.get<string>('JWT_SECRETKEY');
     
-        const accessToken = jwt.sign(payload, secretKey, { expiresIn: '1h' });
-        const refreshToken = jwt.sign(payload, secretKey, { expiresIn: '1y' });
-
+        const JWT_PROPERTIES = {
+            HEADER: 'Authorization',
+            PREFIX: 'Bearer ',
+            ACCESS: 'access',
+            REFRESH: 'refresh',
+            AUTHORITY: 'authority'
+          };
+          
+          const accessTokenOptions: jwt.SignOptions = {
+            algorithm: 'HS256',
+            header: {
+                typ: JWT_PROPERTIES.ACCESS,
+                alg: 'HS256'  
+            },
+            expiresIn: '1h'
+        };
+        
+        const refreshTokenOptions: jwt.SignOptions = {
+            algorithm: 'HS256',
+            header: {
+                typ: JWT_PROPERTIES.REFRESH,
+                alg: 'HS256'  
+            },
+            expiresIn: '1y'
+        };
+          
+          
+          const accessToken = jwt.sign(payload, secretKey, accessTokenOptions);
+          const refreshToken = jwt.sign(payload, secretKey, refreshTokenOptions);
+          
         await this.refreshRepository.save({
             refreshToken: refreshToken,
         });
@@ -89,7 +122,8 @@ export class UserService {
 
         return {
             access_token: accessToken,
-            refresh_token: refreshToken
+            refresh_token: refreshToken,
+            user_authority : user.user_authority
         };
     }
 
@@ -98,9 +132,85 @@ export class UserService {
             select: ['id', 'user_name', 'user_email', 'user_authority'],  // 비밀번호 제외하고 필드 선택
         });
     }
+
+
+
+    async updateProfileUser(request: CustomRequest, data: updateProfileRequestDto) {
+        console.log('request.user:', request.user);
+    
+        try {
+            const user = request.user as User; // request.user에는 가드에서 통과한 인증 정보(즉, 페이로드)가 들어감
+    
+            console.log(user);
+    
+            if (!user) {
+                throw new UnauthorizedException('유저 정보를 찾을 수 없습니다');
+            }
+    
+            //새 정보가 담기지 않았으면 원래 있던 정보 그대로 유지
+            const updatedData = {
+                user_name: data.user_name || user.user_name,
+            }
+    
+            // 사용자 정보 업데이트
+            await this.userRepository.update(user.id, updatedData);
+    
+            // 업데이트된 사용자 정보 반환
+            const updatedUser = await this.userRepository.findOne({ where: { id: user.id } });
+            return {statusCode: HttpStatus.OK}
+    
+        } catch (error) {
+            console.error('토큰 디코딩 실패:', error.message);
+            throw new UnauthorizedException('토큰에서 사용자 ID를 추출할 수 없습니다');
+        }
+        
+    }
     
 
-    async DeleteUser(data: deleteRequestDto): Promise<any> {
+    async updatePasswordUser(request: CustomRequest, data: updatePasswordRequestDto) {
+        console.log('🔹 request.user:', request.user);
+    
+        try {
+            const user = request.user as User; // request.user에는 가드에서 통과한 인증 정보(즉, 페이로드)가 들어감
+    
+            console.log(user);
+    
+            if (!user) {
+                throw new UnauthorizedException('유저 정보를 찾을 수 없습니다');
+            }
+    
+            // 기존 비밀번호 비교
+            const isPasswordValid = await bcrypt.compare(data.user_old_password, user.user_password);
+            if (!isPasswordValid) {
+                throw new UnauthorizedException('기존 비밀번호가 틀립니다.');
+            }
+    
+            // 새로운 비밀번호가 있으면 해시해서 저장
+            if (data.user_new_password) {
+                const saltRounds = 10;
+                data.user_new_password = await bcrypt.hash(data.user_new_password, saltRounds);
+            }
+    
+            //새 정보가 담기지 않았으면 원래 있던 정보 그대로 유지
+            const updatedData = {
+                user_password: data.user_new_password || user.user_password, // 새로운 비밀번호가 없으면 기존 비밀번호 그대로 유지
+            };
+    
+            // 사용자 정보 업데이트
+            await this.userRepository.update(user.id, updatedData);
+    
+            // 업데이트된 사용자 정보 반환
+            const updatedUser = await this.userRepository.findOne({ where: { id: user.id } });
+            return {statusCode: HttpStatus.OK}
+    
+        } catch (error) {
+            console.error('토큰 디코딩 실패:', error.message);
+            throw new UnauthorizedException('토큰에서 사용자 ID를 추출할 수 없습니다');
+        }
+    }
+
+
+    async DeleteUser(data: DeleteRequestDto): Promise<any> {
         const { user_id } = data;
     
         try {
