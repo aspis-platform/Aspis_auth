@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import { randomUUID } from 'crypto';
 import { EmailService } from 'src/global/email/email.sender';
-import * as fs from 'fs';
 
 @Injectable()
 export class InviteService {
@@ -18,9 +17,25 @@ export class InviteService {
   async setEmail(email: string, ttl: number = 3600): Promise<string> {
     const key = randomUUID();
 
-    const filePath = __dirname + '/emailTemplate.html';
-    let emailHtml = fs.readFileSync(filePath, 'utf-8');
-    emailHtml = emailHtml.replace(/{{key}}/g, key);
+    // HTML 템플릿을 외부 파일 대신 코드에 직접 포함
+    let emailHtml = `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 인증 키</title>
+</head>
+<body>
+    <h1>안녕하세요!</h1>
+    <p>
+        안녕하세요 aspis입니다
+        <a href="https://aspis.ncloud.sbs/join?key=${key}">https://aspis.ncloud.sbs/join?key=${key}</a>
+        이 링크를 사용하여 로그인을 진행하세요.
+    </p>
+</body>
+</html>`;
+
 
     const emailOptions = {
       to: email,
