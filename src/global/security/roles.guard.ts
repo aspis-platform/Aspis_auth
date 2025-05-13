@@ -51,9 +51,19 @@ export class RolesGuard implements CanActivate {
     }})
   
     // 사용자가 필요한 역할을 하나라도 가지고 있는지 확인
-    const hasRequiredRole = requiredRoles.some(role => 
-      payload.authority && payload.authority.includes(role)
-    );
+    let hasRequiredRole = false;
+    
+    if (Array.isArray(payload.authority)) {
+      // 배열인 경우 includes를 사용
+      hasRequiredRole = requiredRoles.some(role => 
+        payload.authority && payload.authority.includes(role)
+      );
+    } else {
+      // 문자열인 경우 각 role과 비교
+      hasRequiredRole = requiredRoles.some(role => 
+        payload.authority === role
+      );
+    }
   
     if (!hasRequiredRole) {
       throw new ForbiddenException('이 작업을 수행할 권한이 없습니다');

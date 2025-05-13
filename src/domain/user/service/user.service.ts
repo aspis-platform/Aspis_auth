@@ -75,7 +75,7 @@ export class UserService {
         const match = await compare(user_password, user.user_password);
         if (!match) throw new HttpException('INVALID_PASSWORD', HttpStatus.UNAUTHORIZED);
 
-        const role = user.user_authority === 'STAFF' ? 'STAFF' : 'MANAGER';
+        const role = user.user_authority;
         const payload = { authority: role, id: user.id };
         const secretKey = this.configService.get<string>('JWT_SECRETKEY');
     
